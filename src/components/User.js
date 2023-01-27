@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import {UserItem} from "./UserItem";
-import {useState} from "react";
+import {useRef, useState} from "react";
 
 const Container = styled.div`
   width: 80%;
@@ -18,7 +18,7 @@ const Input = styled.input`
   margin-bottom: 12px;
 `;
 
-const users = [
+const initialUsers = [
     {id: 0, name: 'hesan'},
     {id: 1, name: 'ramin'},
     {id: 2, name: 'fatemeh'},
@@ -28,20 +28,74 @@ const users = [
 ]
 
 function User() {
+
+    const [users, setUsers] = useState(initialUsers);
+
     const [search, setSearch] = useState('');
+
+    const [newUser, setNewUser] = useState();
+
+    const userInputRef = useRef();
+
+    const handleAddUserByKeyboard = ({keyCode}) => {
+        if (keyCode === 13) {
+            handleAddUser();
+        }
+    }
+
+    const handleUserDelete = (userId) => {
+        setUsers((prevUsers) => prevUsers.filter(({ id }) => id !== userId));
+    };
+
+
+    const handleAddUser = () => {
+        if (!newUser) return;
+
+        setUsers((prev) => [...prev, {id: users.length + 1, name: newUser}]);
+
+        setNewUser('');
+
+        userInputRef.current.focus();
+    };
+
     return (
         <Container>
+            <h4>Search the user</h4>
             <Input
                 type='text'
-                placeholder='search a user'
+                placeholder='search the user'
+                value={search}
                 onChange={({target}) => {
                     setSearch(target.value)
                 }}
             />
+
+            <h4>Add a user</h4>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                }}
+            >
+                <Input
+                    type='text'
+                    placeholder='add a user'
+                    value={newUser}
+                    onChange={({target}) => setNewUser(target.value)}
+                    ref={userInputRef}
+                    onKeyUp={handleAddUserByKeyboard}
+                />
+                <button onClick={handleAddUser} disabled={!newUser}>Add</button>
+            </div>
+
+
+            <h4>List of users</h4>
             {
                 users
                     .filter(({name}) => name.includes(search))
-                    .map(({id, name}) => <UserItem key={id} name={name}></UserItem>)
+                    .map(({id, name}) =>
+                        <UserItem key={id} name={name} onDelete={handleUserDelete}></UserItem>)
             }
         </Container>)
 }
