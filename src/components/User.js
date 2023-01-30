@@ -95,7 +95,7 @@ function User() {
                 users
                     .filter(({name}) => name.includes(search))
                     .map(({id, name}) =>
-                        <UserItem key={id} name={name} onDelete={handleUserDelete}></UserItem>)
+                        <UserItem key={id} id={id} name={name} onDelete={handleUserDelete}></UserItem>)
             }
         </Container>)
 }
